@@ -10,6 +10,9 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+/**
+ * Service responsible for communicating with Instagram
+ */
 @Component
 public class InstagramService {
 
@@ -21,6 +24,11 @@ public class InstagramService {
     private static final String CONTENT = "content";
     private static final String DEFAULT_MESSAGE = "An error occurred. The URL might be malformed.";
 
+    /**
+     * This retrieves the direct image url from the original share URL
+     * @param originalUrl the original share URL from Instagram
+     * @return the direct url to the image
+     */
     public String getImageUrl(String originalUrl) {
         String toReturn = DEFAULT_MESSAGE;
         try {
