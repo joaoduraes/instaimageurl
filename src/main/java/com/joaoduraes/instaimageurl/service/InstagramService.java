@@ -1,14 +1,14 @@
 package com.joaoduraes.instaimageurl.service;
 
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
 
 /**
  * Service responsible for communicating with Instagram
@@ -16,16 +16,16 @@ import java.io.IOException;
 @Component
 public class InstagramService {
 
-    private final Logger log = LoggerFactory.getLogger(this.getClass());
-
     private static final String META = "meta";
     private static final String PROPERTY = "property";
     private static final String OG_IMAGE = "og:image";
     private static final String CONTENT = "content";
-    private static final String DEFAULT_MESSAGE = "An error occurred. The URL might be malformed.";
+    private static final String DEFAULT_MESSAGE = "The image URL cannot be retrieved.";
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     /**
      * This retrieves the direct image url from the original share URL
+     *
      * @param originalUrl the original share URL from Instagram
      * @return the direct url to the image
      */
@@ -48,8 +48,14 @@ public class InstagramService {
                 }
             }
 
-        } catch (IOException e) {
-            log.error("Error searching for image url. " + e);
+        } catch (HttpStatusException e) {
+            if (e.getStatusCode() == HttpStatus.NOT_FOUND.value()) {
+                log.error("Image not found. URL is probably malformed or the image is private. " + e);
+            } else {
+                log.error("Error retrieving image url. " + e);
+            }
+        } catch (Exception e) {
+            log.error("Error retrieving image url. " + e);
         }
         return toReturn;
     }
